@@ -9,11 +9,12 @@ jobs:
   test: 
     runs-on: ubuntu-latest
     steps:
-      - name: clone
+      - name: Clone the repo
         uses: actions/checkout@v2
-      - name: run
+      - name: Run the action
+        id: run
         uses: ./
         with:
           who-to-greet: World
-      - name: output
-        run: echo "The time was ${{ steps.run.outputs.time }}"
+      - name: Get the output
+        run: echo "The time was ${{ steps.hello.outputs.time }}"
