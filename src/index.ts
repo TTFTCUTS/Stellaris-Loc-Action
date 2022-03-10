@@ -6,7 +6,7 @@ async function run(): Promise<void> {
         
         const name: string = core.getInput("who-to-greet");
 
-        console.log("Hello ${name}!");
+        console.log(`Hello ${name}!`);
 
         const time: string = new Date().toTimeString();
 
@@ -14,7 +14,7 @@ async function run(): Promise<void> {
 
         const payload: string = JSON.stringify(github.context.payload, null, 2);
 
-        console.log("Event payload: ${payload}");
+        console.log(`Event payload: ${payload}`);
 
     } catch (error) {
         if (error instanceof Error) {
