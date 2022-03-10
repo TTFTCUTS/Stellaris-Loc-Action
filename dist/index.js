@@ -8343,11 +8343,11 @@ function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             const name = core.getInput("who-to-greet");
-            console.log("Hello ${name}!");
+            console.log(`Hello ${name}!`);
             const time = new Date().toTimeString();
             core.setOutput("time", time);
             const payload = JSON.stringify(github.context.payload, null, 2);
-            console.log("Event payload: ${payload}");
+            console.log(`Event payload: ${payload}`);
         }
         catch (error) {
             if (error instanceof Error) {
