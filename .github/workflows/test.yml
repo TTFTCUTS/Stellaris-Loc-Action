@@ -1,0 +1,28 @@
+﻿name: 'build-test'
+on: # rebuild any PRs and main branch changes
+  pull_request:
+  push:
+    branches:
+      - main
+      - 'releases/*'
+
+jobs:
+  build: # make sure build/ci work properly
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - run: |
+          npm install
+      - run: |
+          npm run package
+  test: # make sure the action works on a clean machine without building
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clone the repo
+        uses: actions/checkout@v2
+      - name: Run the action
+        uses: ./
+        with:
+          who-to-greet: World
+      - name: Get the output
+        run: echo "The time was ${{ steps.hello.outputs.time }}"
