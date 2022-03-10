@@ -1,4 +1,4 @@
-﻿name: 'build-test'
+﻿name: 'test'
 on: 
   workflow_dispatch
 #  push:
@@ -15,6 +15,6 @@ jobs:
         id: run
         uses: ./
         with:
-          who-to-greet: World
-      - name: Get the output
-        run: echo "The time was ${{ steps.run.outputs.time }}"
+          path: test-data
+          source-language: source
+          output-languages: output, output2

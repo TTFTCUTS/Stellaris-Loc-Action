@@ -4,18 +4,13 @@ import * as github from "@actions/github";
 async function run(): Promise<void> {
     try {
         
-        const name: string = core.getInput("who-to-greet");
+        const relativePath: string = core.getInput("path");
+        const sourceLanguage: string = core.getInput("source-language");
+        const outputLanguages: Array<string> = core.getInput("output-languages").split(",").map((s:string) => s.trim());
 
-        console.log(`Hello ${name}!`);
-
-        const time: string = (new Date()).toTimeString();
-
-        core.setOutput("time", time);
-        //core.setOutput("time", `Time: ${time}`);
-
-        const payload: string = JSON.stringify(github.context.payload, null, 2);
-
-        console.log(`Event payload: ${payload}`);
+        console.log(`Path: ${relativePath}`);
+        console.log(`Source language: ${sourceLanguage}`);
+        console.log(`Output languages: ${outputLanguages}`);
 
     } catch (error) {
         if (error instanceof Error) {

@@ -1,14 +1,22 @@
-name: 'Hello World'
-description: 'Greet someone and record the time'
+name: 'Stellaris Localisation Action'
+description: 'Propagate new entries from one source language to target languages, and standardise formatting.'
 author: 'TTFTCUTS'
 inputs:
-  who-to-greet:  # id of input
-    description: 'Who to greet'
+  path:
+    description: 'Path from repository root to the folder containing language sub-folders.'
     required: true
-    default: 'World'
-outputs:
-  time: # id of output
-    description: 'The time we greeted you'
+    default: 'localisation'
+
+  source-language:
+    description: 'Language which new entries and formatting are pulled from.'
+    required: true
+    default: 'english'
+
+  output-languages:
+    description: 'Comma separated list of languages to push to. E.g. "french, german"'
+    required: true
+    default: 'braz_por, french, german, polish, russian, simp_chinese, spanish'
+
 runs:
   using: 'node16'
   main: 'dist/index.js'
