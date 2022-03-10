@@ -1,5 +1,6 @@
 ﻿name: 'build-test'
-#on: 
+on: 
+  workflow_dispatch
 #  push:
 #    paths:
 #      - test-data/source/*
