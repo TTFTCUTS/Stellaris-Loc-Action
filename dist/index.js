@@ -8344,8 +8344,9 @@ function run() {
         try {
             const name = core.getInput("who-to-greet");
             console.log(`Hello ${name}!`);
-            const time = new Date().toTimeString();
-            core.setOutput("time", `Time: ${time}`);
+            const time = (new Date()).toTimeString();
+            core.setOutput("time", time);
+            //core.setOutput("time", `Time: ${time}`);
             const payload = JSON.stringify(github.context.payload, null, 2);
             console.log(`Event payload: ${payload}`);
         }
