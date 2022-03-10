@@ -8,9 +8,10 @@ async function run(): Promise<void> {
 
         console.log(`Hello ${name}!`);
 
-        const time: string = new Date().toTimeString();
+        const time: string = (new Date()).toTimeString();
 
-        core.setOutput("time", `Time: ${time}`);
+        core.setOutput("time", time);
+        //core.setOutput("time", `Time: ${time}`);
 
         const payload: string = JSON.stringify(github.context.payload, null, 2);
 
