@@ -10,7 +10,7 @@ async function run(): Promise<void> {
 
         const time: string = new Date().toTimeString();
 
-        core.setOutput("time", time);
+        core.setOutput("time", `Time: ${time}`);
 
         const payload: string = JSON.stringify(github.context.payload, null, 2);
 
