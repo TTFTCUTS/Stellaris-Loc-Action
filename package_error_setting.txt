@@ -1,0 +1,3 @@
+If you're hit with digital envelope routines::unsupported
+
+set NODE_OPTIONS=--openssl-legacy-provider

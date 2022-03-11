@@ -1594,15 +1594,14 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core = __importStar(__nccwpck_require__(186));
+const process = __importStar(__nccwpck_require__(442));
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             const relativePath = core.getInput("path");
             const sourceLanguage = core.getInput("source-language");
             const outputLanguages = core.getInput("output-languages").split(",").map((s) => s.trim());
-            console.log(`Path: ${relativePath}`);
-            console.log(`Source language: ${sourceLanguage}`);
-            console.log(`Output languages: ${outputLanguages}`);
+            yield process.processLoc(relativePath, sourceLanguage, outputLanguages);
         }
         catch (error) {
             if (error instanceof Error) {
@@ -1612,6 +1611,244 @@ function run() {
     });
 }
 run();
+
+
+/***/ }),
+
+/***/ 442:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.processLoc = void 0;
+const fsp = __importStar(__nccwpck_require__(225));
+const pathLib = __importStar(__nccwpck_require__(622));
+function processLoc(relativePath, sourceLanguage, outputLanguages) {
+    return __awaiter(this, void 0, void 0, function* () {
+        // entries with this cardinality are assumed to be fallbacks from the source language
+        const fallbackCardinality = "99";
+        const unusedPrefix = "ORPHANED";
+        console.log(`Path: ${relativePath}`);
+        console.log(`Source language: ${sourceLanguage}`);
+        console.log(`Output languages: ${outputLanguages}`);
+        const allLanguages = new Set().add(sourceLanguage);
+        outputLanguages.forEach(s => allLanguages.add(s));
+        var locDir = yield fsp.readdir(relativePath, { withFileTypes: true });
+        console.log(locDir);
+        const languageData = new Map();
+        // ####################################################################
+        // find all the files and process their lines and entries
+        // for each entry in the loc dir
+        for (let i = 0; i < locDir.length; i++) {
+            const entry = locDir[i];
+            // if the entry is a language directory
+            if (entry.isDirectory() && allLanguages.has(entry.name)) {
+                const language = entry.name;
+                //console.log(`Found directory for ${language}`);
+                const locLanguage = new LocLanguage();
+                const fileNames = [];
+                var path = pathLib.join(relativePath, language);
+                yield findFilesRecursively(path, fileNames);
+                // for each file in the language folder
+                for (let i = 0; i < fileNames.length; i++) {
+                    const filePath = fileNames[i];
+                    const dir = pathLib.dirname(filePath);
+                    const name = pathLib.basename(filePath);
+                    const extension = pathLib.extname(name);
+                    // if it's a potential lang file
+                    if (extension == ".yml") {
+                        const contents = yield fsp.readFile(filePath, { encoding: "utf8" });
+                        const parsed = LocFile.parse(contents.split("\n").map(s => s.trim()), dir, name, language);
+                        // if it turns out to have actually been a loc file
+                        if (parsed instanceof LocFile) {
+                            locLanguage.files.set(name, parsed);
+                            for (let [key, val] of parsed.entries) {
+                                locLanguage.entries.set(key, val);
+                            }
+                        }
+                    }
+                }
+                languageData.set(language, locLanguage);
+            }
+        }
+        console.log(languageData);
+        // ####################################################################
+        // clean out all of the output language files and remake them in the source's image
+        const sourceLocLanguage = languageData.get(sourceLanguage);
+        const sourceFiles = sourceLocLanguage.files;
+        //console.log(sourceFiles);
+        for (let i = 0; i < outputLanguages.length; i++) {
+            const language = outputLanguages[i];
+            const locLanguage = languageData.get(language);
+            const locFiles = locLanguage.files;
+            const langDir = pathLib.join(relativePath, language);
+            console.log(`Process ${language}:`);
+            // clean out all of the existing files
+            if (locFiles != undefined) {
+                for (let [key, locFile] of locFiles) {
+                    //console.log(`delete: ${locFile.path}`);
+                    yield fsp.rm(locFile.path);
+                }
+            }
+            // set for tracking which entries have a home
+            const usedEntries = new Set();
+            // for each source language file
+            for (let [key, sourceFile] of sourceFiles) {
+                const relFilePath = pathLib.relative(pathLib.join(relativePath, sourceLanguage), sourceFile.path);
+                const fileName = pathLib.basename(sourceFile.path);
+                const dir = pathLib.dirname(relFilePath);
+                const langFileDir = pathLib.join(langDir, dir);
+                const langFileName = fileName.replace(`_${sourceLanguage}.yml`, `_l_${language}.yml`);
+                const finalPath = pathLib.join(langFileDir, langFileName);
+                console.log(`${sourceFile.path} -> ${finalPath}`);
+                const lines = [`l_${language}:`];
+                // for each line in the source file
+                for (let i = 0; i < sourceFile.lines.length; i++) {
+                    const line = sourceFile.lines[i];
+                    if (line instanceof LocEntry) {
+                        // a full blown entry
+                        const key = line.key;
+                        var value = line.text;
+                        var cardinality = fallbackCardinality;
+                        usedEntries.add(key);
+                        // if we have a matching entry which does NOT match the fallback cardinality, replace!
+                        if (locLanguage.entries.has(key)) {
+                            const entry = locLanguage.entries.get(key);
+                            if (entry.cardinality != fallbackCardinality) {
+                                value = entry.text;
+                                cardinality = entry.cardinality;
+                            }
+                        }
+                        lines.push(`  ${key}:${cardinality} "${value}"`);
+                    }
+                    else {
+                        // a non-entry line
+                        lines.push(`  ${line}`);
+                    }
+                }
+                yield fsp.mkdir(langFileDir, { recursive: true });
+                // write that file! hopefully this doesn't care about outputs?
+                yield fsp.writeFile(finalPath, lines.join("\r\n"));
+                //console.log(lines);
+            }
+            // put any entries which were not used into a file for orphaned entries
+            var saveOrphan = false;
+            const orphanLines = [`l_${language}:`, `  # These entries were in the previous [${language}] loc files but are not present in the current [${sourceLanguage}] files.`];
+            for (let [key, entry] of locLanguage.entries) {
+                if ((!usedEntries.has(key)) && (entry.cardinality != fallbackCardinality)) {
+                    saveOrphan = true;
+                    orphanLines.push(`  ${key}:${entry.cardinality} "${entry.text}"`);
+                }
+            }
+            if (saveOrphan) {
+                yield fsp.mkdir(langDir, { recursive: true });
+                yield fsp.writeFile(pathLib.join(langDir, `${unusedPrefix}_l_${language}.yml`), orphanLines.join("\r\n"));
+            }
+        }
+    });
+}
+exports.processLoc = processLoc;
+function findFilesRecursively(path, list, depth = 0) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const dir = yield fsp.readdir(path, { withFileTypes: true });
+        //console.log(dir);
+        for (let i = 0; i < dir.length; i++) {
+            const entry = dir[i];
+            if (entry.isDirectory()) {
+                // subdirectory, recurse
+                yield findFilesRecursively(pathLib.join(path, entry.name), list, depth + 1);
+            }
+            else if (entry.isFile()) {
+                list.push(pathLib.join(path, entry.name));
+            }
+        }
+    });
+}
+class LocLanguage {
+    constructor() {
+        this.files = new Map();
+        this.entries = new Map();
+    }
+}
+class LocEntry {
+    constructor(key, cardinality, text) {
+        this.key = key;
+        this.cardinality = cardinality;
+        this.text = text;
+    }
+}
+class LocFile {
+    constructor(path, language) {
+        this.entries = new Map();
+        this.lines = [];
+        this.language = language;
+        this.path = path;
+    }
+    static parse(lines, path, name, language) {
+        //console.log(`Attempting parse of ${pathLib.join(path, name)}`);
+        // empty file or not formatted as a lang file
+        if (lines.length == 0 || (!name.endsWith(`_l_${language}.yml`)) || (lines[0] != `l_${language}:`)) {
+            //console.warn("Invalid file")
+            return;
+        }
+        const locFile = new LocFile(pathLib.join(path, name), language);
+        // starting at 1 because we already know the language
+        for (let i = 1; i < lines.length; i++) {
+            const line = lines[i];
+            var matches = line.match(this.pattern);
+            if (matches != null) {
+                // this is a loc entry
+                const key = matches[1];
+                const cardinality = matches[2];
+                const text = matches[3];
+                //console.log(`match: ${matches[0]}`);
+                const locEntry = new LocEntry(key, cardinality, text);
+                //console.log(locEntry);
+                locFile.entries.set(key, locEntry);
+                locFile.lines.push(locEntry);
+            }
+            else {
+                // this is some other line
+                locFile.lines.push(line);
+            }
+        }
+        return locFile;
+    }
+}
+LocFile.pattern = new RegExp(/^([\w\d_]+):(\d+)\s+"(.*)"$/);
 
 
 /***/ }),
@@ -1637,6 +1874,14 @@ module.exports = require("events");
 
 "use strict";
 module.exports = require("fs");
+
+/***/ }),
+
+/***/ 225:
+/***/ ((module) => {
+
+"use strict";
+module.exports = require("fs/promises");
 
 /***/ }),
 
