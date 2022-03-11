@@ -5,8 +5,8 @@ import * as pathLib from "path";
 type Nullable<T> = T | null | undefined;
 
 export async function processLoc(relativePath: string, sourceLanguage: string, outputLanguages: Array<string>) : Promise<void> {
-    // entries with this cardinality are assumed to be fallbacks from the source language
-    const fallbackCardinality = "99";
+    // entries with this precedence are assumed to be fallbacks from the source language
+    const fallbackPrecedence = "99";
     const unusedPrefix = "ORPHANED";
 
     console.log(`Path: ${relativePath}`);
@@ -116,20 +116,20 @@ export async function processLoc(relativePath: string, sourceLanguage: string, o
                     // a full blown entry
                     const key: string = line.key;
                     var value: string = line.text;
-                    var cardinality: string = fallbackCardinality;
+                    var precedence: string = fallbackPrecedence;
 
                     usedEntries.add(key);
 
-                    // if we have a matching entry which does NOT match the fallback cardinality, replace!
+                    // if we have a matching entry which does NOT match the fallback precedence, replace!
                     if (locLanguage.entries.has(key)) {
                         const entry = locLanguage.entries.get(key)!;
-                        if (entry.cardinality != fallbackCardinality) {
+                        if (entry.precedence != fallbackPrecedence) {
                             value = entry.text;
-                            cardinality = entry.cardinality;
+                            precedence = entry.precedence;
                         }
                     }
 
-                    lines.push(`  ${key}:${cardinality} "${value}"`);
+                    lines.push(`  ${key}:${precedence} "${value}"`);
                 } else {
                     // a non-entry line
                     lines.push(`  ${line}`);
@@ -147,9 +147,9 @@ export async function processLoc(relativePath: string, sourceLanguage: string, o
         var saveOrphan = false;
         const orphanLines: Array<string> = [`l_${language}:`, `  # These entries were in the previous [${language}] loc files but are not present in the current [${sourceLanguage}] files.`];
         for(let [key, entry] of locLanguage.entries) {
-            if ((!usedEntries.has(key)) && (entry.cardinality != fallbackCardinality)) {
+            if ((!usedEntries.has(key)) && (entry.precedence != fallbackPrecedence)) {
                 saveOrphan = true;
-                orphanLines.push(`  ${key}:${entry.cardinality} "${entry.text}"`)
+                orphanLines.push(`  ${key}:${entry.precedence} "${entry.text}"`)
             }
         }
 
@@ -187,12 +187,12 @@ class LocLanguage {
 
 class LocEntry {
     key: string;
-    cardinality: string;
+    precedence: string;
     text: string;
 
-    constructor(key: string, cardinality: string, text: string) {
+    constructor(key: string, precedence: string, text: string) {
         this.key = key;
-        this.cardinality = cardinality;
+        this.precedence = precedence;
         this.text = text;
     }
 }
@@ -231,12 +231,12 @@ class LocFile {
                 
                 // this is a loc entry
                 const key: string = matches[1];
-                const cardinality: string = matches[2];
+                const precedence: string = matches[2];
                 const text: string = matches[3];
 
                 //console.log(`match: ${matches[0]}`);
 
-                const locEntry: LocEntry = new LocEntry(key, cardinality, text);
+                const locEntry: LocEntry = new LocEntry(key, precedence, text);
 
                 //console.log(locEntry);
 

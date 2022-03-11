@@ -1658,8 +1658,8 @@ const fsp = __importStar(__nccwpck_require__(225));
 const pathLib = __importStar(__nccwpck_require__(622));
 function processLoc(relativePath, sourceLanguage, outputLanguages) {
     return __awaiter(this, void 0, void 0, function* () {
-        // entries with this cardinality are assumed to be fallbacks from the source language
-        const fallbackCardinality = "99";
+        // entries with this precedence are assumed to be fallbacks from the source language
+        const fallbackPrecedence = "99";
         const unusedPrefix = "ORPHANED";
         console.log(`Path: ${relativePath}`);
         console.log(`Source language: ${sourceLanguage}`);
@@ -1742,17 +1742,17 @@ function processLoc(relativePath, sourceLanguage, outputLanguages) {
                         // a full blown entry
                         const key = line.key;
                         var value = line.text;
-                        var cardinality = fallbackCardinality;
+                        var precedence = fallbackPrecedence;
                         usedEntries.add(key);
-                        // if we have a matching entry which does NOT match the fallback cardinality, replace!
+                        // if we have a matching entry which does NOT match the fallback precedence, replace!
                         if (locLanguage.entries.has(key)) {
                             const entry = locLanguage.entries.get(key);
-                            if (entry.cardinality != fallbackCardinality) {
+                            if (entry.precedence != fallbackPrecedence) {
                                 value = entry.text;
-                                cardinality = entry.cardinality;
+                                precedence = entry.precedence;
                             }
                         }
-                        lines.push(`  ${key}:${cardinality} "${value}"`);
+                        lines.push(`  ${key}:${precedence} "${value}"`);
                     }
                     else {
                         // a non-entry line
@@ -1768,9 +1768,9 @@ function processLoc(relativePath, sourceLanguage, outputLanguages) {
             var saveOrphan = false;
             const orphanLines = [`l_${language}:`, `  # These entries were in the previous [${language}] loc files but are not present in the current [${sourceLanguage}] files.`];
             for (let [key, entry] of locLanguage.entries) {
-                if ((!usedEntries.has(key)) && (entry.cardinality != fallbackCardinality)) {
+                if ((!usedEntries.has(key)) && (entry.precedence != fallbackPrecedence)) {
                     saveOrphan = true;
-                    orphanLines.push(`  ${key}:${entry.cardinality} "${entry.text}"`);
+                    orphanLines.push(`  ${key}:${entry.precedence} "${entry.text}"`);
                 }
             }
             if (saveOrphan) {
@@ -1804,9 +1804,9 @@ class LocLanguage {
     }
 }
 class LocEntry {
-    constructor(key, cardinality, text) {
+    constructor(key, precedence, text) {
         this.key = key;
-        this.cardinality = cardinality;
+        this.precedence = precedence;
         this.text = text;
     }
 }
@@ -1832,10 +1832,10 @@ class LocFile {
             if (matches != null) {
                 // this is a loc entry
                 const key = matches[1];
-                const cardinality = matches[2];
+                const precedence = matches[2];
                 const text = matches[3];
                 //console.log(`match: ${matches[0]}`);
-                const locEntry = new LocEntry(key, cardinality, text);
+                const locEntry = new LocEntry(key, precedence, text);
                 //console.log(locEntry);
                 locFile.entries.set(key, locEntry);
                 locFile.lines.push(locEntry);
