@@ -1,0 +1,8 @@
+l_sourcelang:
+  # some comment
+  foo:0 "foo"
+  bar:0 "bar"
+
+  # another comment
+  bloop:0 "cheese sticks"
+  gloop:0 "ham"

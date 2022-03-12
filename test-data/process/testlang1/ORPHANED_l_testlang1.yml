@@ -1,0 +1,3 @@
+l_testlang1:
+  # These entries were in the previous [testlang1] loc files but are not present in the current [sourcelang] files.
+  extra:0 "an entry not in the source lang"

@@ -1,7 +1,7 @@
 import * as core from "@actions/core";
 import * as github from "@actions/github";
 
-import * as process from "./process";
+import * as process from "./processor";
 
 async function run(): Promise<void> {
     try {

@@ -5,7 +5,8 @@
   "main": "src/index.ts",
   "scripts": {
     "build": "tsc",
-    "localtest": "npm run build && node lib/localtest.js",
+    "preprocess": "node lib/preprocess.js",
+    "localtest": "node lib/localtest.js",
     "package": "ncc build --source-map --license licenses.txt"
   },
   "keywords": [],

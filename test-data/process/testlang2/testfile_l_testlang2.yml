@@ -1,0 +1,8 @@
+l_testlang2:
+  # some comment
+  foo:99 "foo"
+  bar:99 "bar"
+  
+  # another comment
+  bloop:99 "cheese sticks"
+  gloop:99 "ham"

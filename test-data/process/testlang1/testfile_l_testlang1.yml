@@ -1,0 +1,8 @@
+l_testlang1:
+  # some comment
+  foo:0 "foo but another lang"
+  bar:0 "bar but another lang"
+  
+  # another comment
+  bloop:0 "cheese sticks but another lang"
+  gloop:0 "ham but another lang"
