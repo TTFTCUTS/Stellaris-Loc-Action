@@ -92,16 +92,18 @@ export class LocEntry {
     key: string;
     marker: string;
     text: string;
+    comment: string;
 
-    constructor(key: string, marker: string, text: string) {
+    constructor(key: string, marker: string, text: string, comment: string = "") {
         this.key = key;
         this.marker = marker;
         this.text = text;
+        this.comment = comment;
     }
 }
 
 export class LocFile {
-    static pattern: RegExp = new RegExp(/^([\w\d_.]+):(\d+)\s+"(.*)"$/);
+    static pattern: RegExp = new RegExp(/^([\S]+):(\d*)\s+"(.*)"\s*(#.*)*$/);
 
     entries: Map<string, LocEntry> = new Map<string, LocEntry>();
     lines: Array<LocLine> = [];
@@ -134,12 +136,18 @@ export class LocFile {
                 
                 // this is a loc entry
                 const key: string = matches[1];
-                const marker: string = matches[2];
+                var marker: string = matches[2];
                 const text: string = matches[3];
+                const comment: string = matches[4];
+
+                // if we're missing the number, assume 0
+                if (marker == null || marker.length == 0) {
+                    marker = "0";
+                }
 
                 //console.log(`match: ${matches[0]}`);
 
-                const locEntry: LocEntry = new LocEntry(key, marker, text);
+                const locEntry: LocEntry = new LocEntry(key, marker, text, comment);
 
                 //console.log(locEntry);
 
@@ -147,10 +155,47 @@ export class LocFile {
                 locFile.lines.push(locEntry);
             } else {
                 // this is some other line
+
+                // check that this is a comment or empty, otherwise warn
+                if (line.length > 0 && !line.startsWith("#")) {
+                    console.warn(`Non-comment @ ${locFile.path} ${Colours.FgYellow}line ${i+1}${Colours.Reset}: ${line}`);
+                }
+
                 locFile.lines.push(line);
             }
         }
 
         return locFile;
     }
+}
+
+// ####################################################################
+// colours
+
+export abstract class Colours {
+    static Reset = "\x1b[0m"
+    static Bright = "\x1b[1m"
+    static Dim = "\x1b[2m"
+    static Underscore = "\x1b[4m"
+    static Blink = "\x1b[5m"
+    static Reverse = "\x1b[7m"
+    static Hidden = "\x1b[8m"
+
+    static FgBlack = "\x1b[30m"
+    static FgRed = "\x1b[31m"
+    static FgGreen = "\x1b[32m"
+    static FgYellow = "\x1b[33m"
+    static FgBlue = "\x1b[34m"
+    static FgMagenta = "\x1b[35m"
+    static FgCyan = "\x1b[36m"
+    static FgWhite = "\x1b[37m"
+
+    static BgBlack = "\x1b[40m"
+    static BgRed = "\x1b[41m"
+    static BgGreen = "\x1b[42m"
+    static BgYellow = "\x1b[43m"
+    static BgBlue = "\x1b[44m"
+    static BgMagenta = "\x1b[45m"
+    static BgCyan = "\x1b[46m"
+    static BgWhite = "\x1b[47m"
 }

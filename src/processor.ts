@@ -81,7 +81,7 @@ export async function processLoc(relativePath: string, sourceLanguage: string, o
                         }
                     }
 
-                    lines.push(`  ${key}:${marker} "${value}"`);
+                    lines.push(`  ${key}:${marker} "${value}"${line.comment.length > 0 ? ` ${line.comment}`:""}`);
                 } else {
                     // a non-entry line
                     lines.push(`  ${line}`);
