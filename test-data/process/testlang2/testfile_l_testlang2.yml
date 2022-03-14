@@ -6,3 +6,5 @@ l_testlang2:
   # another comment
   bloop:99 "cheese sticks"
   gloop:99 "ham"
+  
+  poot:99 "A new line added to check that it gets auto-added properly"
