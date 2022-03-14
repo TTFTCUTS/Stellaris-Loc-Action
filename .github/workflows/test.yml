@@ -15,6 +15,11 @@ jobs:
         id: run
         uses: ./
         with:
-          path: test-data
-          source-language: source
-          output-languages: output, output2
+          path: test-data/process
+          source-language: sourcelang
+          output-languages: testlang1, testlang2
+      - name: Commit any changes
+        uses: EndBug/add-and-commit@v9.0.0
+        with:
+          message: Auto-update loc files
+          add: test-data/process
