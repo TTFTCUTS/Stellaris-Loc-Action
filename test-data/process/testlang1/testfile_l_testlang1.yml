@@ -6,3 +6,5 @@ l_testlang1:
   # another comment
   bloop:0 "cheese sticks but another lang"
   gloop:0 "ham but another lang"
+  
+  poot:99 "A new line added to check that it gets auto-added properly"
