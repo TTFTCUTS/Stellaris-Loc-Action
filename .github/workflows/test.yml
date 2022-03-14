@@ -23,3 +23,5 @@ jobs:
         with:
           message: Auto-update loc files
           add: test-data/process
+          committer_name: GitHub Actions
+          committer_email: 41898282+github-actions[bot]@users.noreply.github.com

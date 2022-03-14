@@ -6,5 +6,3 @@ l_sourcelang:
   # another comment
   bloop:0 "cheese sticks"
   gloop:0 "ham"
-
-  poot:0 "A new line added to check that it gets auto-added properly"
