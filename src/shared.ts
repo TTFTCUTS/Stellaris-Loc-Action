@@ -53,6 +53,13 @@ export async function findLocFiles(relativePath: string, allLanguages: Set<strin
         }
     }
 
+    // add empty languages if we didn't find the folder in the source (no translations etc)
+    for (const lang of allLanguages) {
+        if (!languageData.has(lang)) {
+            languageData.set(lang, new LocLanguage());
+        }
+    }
+
     //console.log(languageData);
 
     return languageData;

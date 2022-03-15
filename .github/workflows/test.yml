@@ -3,7 +3,7 @@ on:
   workflow_dispatch
 #  push:
 #    paths:
-#      - test-data/source/*
+#      - test-data/process/*
 
 jobs:
   test: 
