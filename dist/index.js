@@ -1681,10 +1681,10 @@ function processLoc(relativePath, sourceLanguage, outputLanguages) {
         //console.log(sourceFiles);
         for (let i = 0; i < outputLanguages.length; i++) {
             const language = outputLanguages[i];
+            console.log(`Process ${language}:`);
             const locLanguage = languageData.get(language);
             const locFiles = locLanguage.files;
             const langDir = pathLib.join(relativePath, language);
-            console.log(`Process ${language}:`);
             // clean out all of the existing files
             if (locFiles != undefined) {
                 for (let [key, locFile] of locFiles) {
@@ -1832,6 +1832,12 @@ function findLocFiles(relativePath, allLanguages) {
                     }
                 }
                 languageData.set(language, locLanguage);
+            }
+        }
+        // add empty languages if we didn't find the folder in the source (no translations etc)
+        for (const lang of allLanguages) {
+            if (!languageData.has(lang)) {
+                languageData.set(lang, new LocLanguage());
             }
         }
         //console.log(languageData);

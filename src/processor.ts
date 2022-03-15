@@ -31,11 +31,11 @@ export async function processLoc(relativePath: string, sourceLanguage: string, o
 
     for (let i = 0; i < outputLanguages.length; i++) {
         const language: string = outputLanguages[i];
+        console.log(`Process ${language}:`);
+
         const locLanguage = languageData.get(language)!;
         const locFiles = locLanguage.files;
         const langDir = pathLib.join(relativePath, language);
-
-        console.log(`Process ${language}:`);
 
         // clean out all of the existing files
         if (locFiles != undefined) { 
