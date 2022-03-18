@@ -1703,7 +1703,7 @@ function processLoc(relativePath, sourceLanguage, outputLanguages) {
                 const langFileName = fileName.replace(`_l_${sourceLanguage}.yml`, `_l_${language}.yml`);
                 const finalPath = pathLib.join(langFileDir, langFileName);
                 console.log(`${sourceFile.path} -> ${finalPath}`);
-                const lines = [`l_${language}:`];
+                const lines = [`\ufeffl_${language}:`];
                 // for each line in the source file
                 for (let i = 0; i < sourceFile.lines.length; i++) {
                     const line = sourceFile.lines[i];
