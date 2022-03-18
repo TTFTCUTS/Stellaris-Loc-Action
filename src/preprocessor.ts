@@ -29,7 +29,7 @@ export async function preProcessLoc(inputPath: string, outputPath: string, sourc
         // skip this language if there's no input file, since there'd be no output anyway!
         if (locLanguage == undefined) { continue; }
 
-        const lines: Array<string> = [`l_${language}:`];
+        const lines: Array<string> = [`\ufeffl_${language}:`];
 
         for (const [key,entry] of locLanguage.entries) {
 

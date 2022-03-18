@@ -58,7 +58,7 @@ export async function processLoc(relativePath: string, sourceLanguage: string, o
             const finalPath = pathLib.join(langFileDir, langFileName);
             
             console.log(`${sourceFile.path} -> ${finalPath}`);
-            const lines: Array<string> = [`l_${language}:`];
+            const lines: Array<string> = [`\ufeffl_${language}:`];
 
             // for each line in the source file
             for (let i=0; i<sourceFile.lines.length; i++) {
