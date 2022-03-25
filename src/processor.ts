@@ -97,7 +97,7 @@ export async function processLoc(relativePath: string, sourceLanguage: string, o
 
         // put any entries which were not used into a file for orphaned entries
         var saveOrphan = false;
-        const orphanLines: Array<string> = [`l_${language}:`, `  # These entries were in the previous [${language}] loc files but are not present in the current [${sourceLanguage}] files.`];
+        const orphanLines: Array<string> = [`\ufeffl_${language}:`, `  # These entries were in the previous [${language}] loc files but are not present in the current [${sourceLanguage}] files.`];
         for(let [key, entry] of locLanguage.entries) {
             if ((!usedEntries.has(key)) && (entry.marker != fallbackMarker)) {
                 saveOrphan = true;
